@@ -17,3 +17,7 @@ Port Allocated : 9999, 9998, 9997 ( Base port 9999 )
 > npm start
 
 > PORT=any_port npm start ( if arbitrary port is demanded )
+
+# Notice
+
+> please copy 'config' folder arbitrary ( not uploaded on github )
