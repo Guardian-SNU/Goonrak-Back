@@ -11,7 +11,7 @@ var bodyParser = require('body-parser');
 // routers
 var index = require('./routes/index');
 var users = require('./routes/users');
-var login = require('./routes/login');
+var inout = require('./routes/inout');
 
 var app = express();
 
@@ -31,7 +31,7 @@ app.use(session(session_config));
 // link routers
 app.use('/', index);
 app.use('/users', users);
-app.use('/login', login);
+app.use('/inout', inout);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -6,13 +6,13 @@ var mysql = require('mysql');
 var db_config = require('../config/db_config.js');
 var connection = mysql.createConnection(db_config);
 
-/* POST try login
+/* POST login
  *
  * POST BODY
  * 	- username
  * 	- password
  */
-router.post('/', function(req, res, next) {
+router.post('/login', function(req, res, next) {
 
 	console.log(req.body);
 	// if required fields are not given
@@ -59,5 +59,12 @@ router.post('/', function(req, res, next) {
 		}
 	});
 });
+
+/* POST logout
+ *
+ * POST BODY
+ */
+router.post('/logout', function(req, res, next) {
+}
 
 module.exports = router;
