@@ -1,4 +1,5 @@
 
+// check user is logged in
 var validate_login = function(session){
 	var login = session.login;
 
@@ -10,6 +11,7 @@ var validate_login = function(session){
 	}
 };
 
+// check user's username
 var validate_user = function(session, username){
 	var user = session.username;
 
