@@ -23,7 +23,11 @@ var validate_user = function(session, username){
 	}
 };
 
+// response for when auth failed
+var auth_fail_response = { "resultcode": 403, "message": "user auth fail" };
+
 module.exports = {
-	validate_login		: validate_login,
-	validate_user			: validate_user,
+	validate_login			: validate_login,
+	validate_user				: validate_user,
+	auth_fail_response	: JSON.stringify(auth_fail_response),
 };

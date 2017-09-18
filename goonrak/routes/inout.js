@@ -6,15 +6,15 @@ var mysql = require('mysql');
 var db_config = require('../config/db_config.js');
 var connection = mysql.createConnection(db_config);
 
-/* POST login
- *
- * POST BODY
- * 	- username
- * 	- password
+/* login
+ * - get username, password from user, authenticate it, and give sessions to user
+ * POST form data
+ * - username
+ * - password
  */
 router.post('/login', function(req, res, next) {
 
-	console.log(req.body);
+	// console.log(req.body);
 	// if required fields are not given
 	if(!req.body.username || !req.body.password){
 		console.log("param not given");
@@ -60,11 +60,22 @@ router.post('/login', function(req, res, next) {
 	});
 });
 
-/* POST logout
+/* logout
+ * - remove sessions from user, and redirect to home directory
  *
- * POST BODY
+ * POST form data
  */
 router.post('/logout', function(req, res, next) {
-}
+	// TODO : implement
+});
+
+/* register
+ * - register new user
+ *
+ * POST form data
+ * - username, password, email, ... ( check database schema )
+ */
+router.post('/register', function(req, res, next) {
+});
 
 module.exports = router;
