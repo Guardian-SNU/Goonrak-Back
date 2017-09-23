@@ -12,26 +12,26 @@ var DEBUG		= true;
  * - validate user, and return post data
  * 
  * POST form data
- * - id
+ * - post_id
  * - category
  * - username
  */
 router.post('/get_post', function(req, res, next){ 
 
-	if(!req.body.id || !req.body.category || !req.body.username) {
+	if(!req.body.post_id || !req.body.category || !req.body.username) {
 		console.log("param not given");
 		return res.sendStatus(404);
 	}
 
 	var session		= req.session;
 
-	var id 			= req.body.id;
+	var post_id		= req.body.post_id;
 	var category 	= req.body.category;
 	var username	= req.body.username;
 	if(DEBUG) {
 		console.log();
 		console.log("======= POST from data =======");
-		console.log("id\t\t: " + id);
+		console.log("id\t: " + id);
 		console.log("category\t: " + category);
 		console.log("username\t: " + username);
 		console.log();
@@ -55,8 +55,8 @@ router.post('/get_post', function(req, res, next){
 
 	connection.connect();
 
-	var sql = 'SELECT * FROM POST WHERE post_id=? AND category=? AND username=?';
-	connection.query(sql, [id, category, username], function (err, rows, field){
+	var sql = 'SELECT * FROM POST WHERE post_id=? AND category=?';
+	connection.query(sql, [post_id, category], function (err, rows, field){
 		if(err) {
 			throw err;
 		}
@@ -82,6 +82,7 @@ router.post('/get_post', function(req, res, next){
  */
 router.post('/write_post', function(req, res, next){
 	
+	if(!req.body.post_title || !req.)
 });
 
 
