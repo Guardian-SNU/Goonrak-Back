@@ -1,10 +1,12 @@
-var express = require('express');
-var router = express.Router();
+var express		= require('express');
+var router		= express.Router();
 
-var auth = require('../general/auth.js');
-var mysql = require('mysql');
-var db_config = require('../config/db_config.js');
-var connection = mysql.createConnection(db_config);
+var auth		= require('../general/auth.js');
+var mysql		= require('mysql');
+var db_config	= require('../config/db_config.js');
+var connection	= mysql.createConnection(db_config);
+
+var DEBUG		= true;
 
 /* get_post
  * - validate user, and return post data
@@ -14,8 +16,60 @@ var connection = mysql.createConnection(db_config);
  * - category
  * - username
  */
-router.post('/get_post', function(req, res, next){	
-	// TODO : implement
+router.post('/get_post', function(req, res, next){ 
+
+	if(!req.body.post_id) {
+		console.log("param not given");
+		return res.sendStatus(404);
+	}
+
+	var session		= req.session;
+
+	var id 			= req.body.id;
+	var category 	= req.body.category;
+	var username	= req.body.username;
+	if(DEBUG) {
+		console.log();
+		console.log("======= POST from data =======");
+		console.log("id\t\t: " + id);
+		console.log("category\t: " + category);
+		console.log("username\t: " + username);
+		console.log();
+	}
+
+
+	if(!auth.validate_user(session, username)) {
+	
+		console.log("validate_user failed");
+		console.log();
+		res.send("INVALID");
+		return;
+
+	} else {
+		
+		console.log("validate_user success");
+		console.log();
+		res.send("VALID");
+		
+	}
+
+	connection.connect();
+
+	var sql = 'SELECT * FROM POST WHERE post_id=? AND category=? AND username=?';
+	connection.query(sql, [id, category, username], function (err, rows, field){
+		if(err) {
+			throw err;
+		}
+
+		if(rows) {
+			res.send(rows);
+		} else {
+			res.send("No such post");
+		}
+		
+	});
+
+	connection.end();
 });
 
 
