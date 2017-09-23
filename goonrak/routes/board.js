@@ -18,7 +18,7 @@ var DEBUG		= true;
  */
 router.post('/get_post', function(req, res, next){ 
 
-	if(!req.body.post_id) {
+	if(!req.body.id || !req.body.category || !req.body.username) {
 		console.log("param not given");
 		return res.sendStatus(404);
 	}
@@ -81,7 +81,7 @@ router.post('/get_post', function(req, res, next){
  * - username
  */
 router.post('/write_post', function(req, res, next){
-	// TODO : implement
+	
 });
 
 
