@@ -12,26 +12,32 @@ var connection = mysql.createConnection(db_config);
  * - username
  * - password
  */
+
+
 router.post('/login', function(req, res, next) {
 
-	// console.log(req.body);
 	// if required fields are not given
 	if(!req.body.username || !req.body.password){
 		console.log("param not given");
 		return res.sendStatus(404);
 	}
 
+	if(!req.body.password)
+
 	var sess = req.session;
 	var username = req.body.username;
 	var password = req.body.password;
-
+    var send_data={};
 	// better hide table name?...
+	connection.connect();
 	connection.query('SELECT * FROM LOGIN WHERE username=?', username, function(err, rows, field){
 		
-		//if(err){
-		//	throw err;
-		//	TODO : NEED SOME ERROR HANDLEING
-		//}
+		if(err){
+			//connection.release()
+			console.log(err)
+			throw err;
+			// TODO : NEED SOME ERROR HANDLEING
+		}
 
 		// check username uniqueness
 		if(rows && rows.length == 1){
@@ -42,22 +48,36 @@ router.post('/login', function(req, res, next) {
 			// correct password given
 			if(pw_hash == user_hash){
 				// TODO : login
-				res.send("LOGIN SUCCESSFUL!");
+				send_data["success"]=1;
+				send_data["log"]='login successful';
+
+				sess.username=username;
+
+				res.json(send_data);
+				//res.send("LOGIN SUCCESSFUL!");
+
 			}
 
 			// wrong password given
 			else{
 				// TODO : send JSON
-				res.send("WRONG INFO");
+				send_data["success"]=0;
+				send_data["log"]='wrong password';
+				res.json(send_data);
+				//res.send("WRONG INFO");
 			}
 		}
 
 		// no matching username
 		else{
 			// TODO : send JSON
-			res.send("WRONG INFO");
+			send_data["success"]=0;
+			send_data["log"]='no username';
+			res.json(send_data);
+			//res.send("WRONG INFO");
 		}
 	});
+	connection.end();
 });
 
 /* logout
@@ -67,6 +87,21 @@ router.post('/login', function(req, res, next) {
  */
 router.post('/logout', function(req, res, next) {
 	// TODO : implement
+	var sess=req.session;
+	if(sess.username) {
+        req.session.destroy(function (err) {
+            if(err){
+            	console.log(err);
+				throw err;
+			}else{
+            	res.redirect('/');
+			}
+        });
+    }
+    else{
+		// better json?
+		res.send('first login');
+	}
 });
 
 /* register
@@ -76,6 +111,39 @@ router.post('/logout', function(req, res, next) {
  * - username, password, email, ... ( check database schema )
  */
 router.post('/register', function(req, res, next) {
+
+	// TODO : exception handling
+
+    var randomstring = function(length){
+        return crypto.randomBytes(Math.ceil(length/2))
+            .toString('hex') /** convert to hexadecimal format */
+            .slice(0,length);   /** return required number of characters */
+    };
+
+	var username=req.body.username;
+	var password=req.body.password;
+	var email=req.body.email;
+	var nickname=req.body.nickname;
+	var registertime=req.body.registretime; // in backend?
+
+
+    var salt=randomstring(16);
+    var password_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
+
+	var usertable_post={username:username,nickname:nickname,registertime:registertime,email:email,is_club_member:0,is_admin:0};
+	var logintable_post={username:username,salt:salt,password:password};
+
+	connection.connect();
+
+	connection.query('INSERT INTO USER SET ?',usertable_post,function(err,result){
+		console.log(result);
+	})
+    connection.query('INSERT INTO LOGIN SET ?',logintable_post,function(err,result){
+        console.log(result);
+    })
+
+	connection.end();
+
 });
 
 module.exports = router;
