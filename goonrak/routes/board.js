@@ -81,7 +81,7 @@ router.post('/write_post', function(req, res, next){
 	var param = req.body.board & req.body.title & req.body.content & req.body.username; 
 	if(!param) {
 		console.log("param not given");
-		returen res.sendStatus(404);
+		return res.sendStatus(404);
 	}
 
 	var session	= req.session;
@@ -204,7 +204,7 @@ router.post('/delete_post', function(req, res, next){
 	var post_id		= req.body.post_id;
 	var username	= req.body.username;
 
-	if(!auth.validate_user(session, username) {
+	if(!auth.validate_user(session, username)) {
 		console.log("validate_user fail");
 		return res.sendStatus(404);
 	} else {
@@ -213,9 +213,9 @@ router.post('/delete_post', function(req, res, next){
 
 	connection.connect();
 
-	var post_exists
+	var post_exists;
 	var check 	= 'SELECT * FROM POST WHERE board=? AND post_id=?';
-	var delete	= 'DELETE FROM POST WHERE board=? AND post_id=?';
+	var del		= 'DELETE FROM POST WHERE board=? AND post_id=?';
 	
 	connection.query(check, [board, post_id], function (err, rows, field) {
 		if(err) {
@@ -234,7 +234,7 @@ router.post('/delete_post', function(req, res, next){
 	});
 
 	if(post_exists)
-	connection.query(delete, [board, post_id], function (err, result) {
+	connection.query(del, [board, post_id], function (err, result) {
 		if(err) {
 			throw err;
 		}
