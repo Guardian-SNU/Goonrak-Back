@@ -18,7 +18,7 @@ var DEBUG		= true;
  */
 router.post('/get_post', function(req, res, next){ 
 
-	if(!req.body.post_id || !req.body.category || !req.body.username) {
+	if(!req.body.post_id || !req.body.board || !req.body.username) {
 		console.log("param not given");
 		return res.sendStatus(404);
 	}
@@ -26,13 +26,13 @@ router.post('/get_post', function(req, res, next){
 	var session		= req.session;
 
 	var post_id		= req.body.post_id;
-	var category 	= req.body.category;
+	var board	 	= req.body.board;
 	var username	= req.body.username;
 	if(DEBUG) {
 		console.log();
 		console.log("======= POST from data =======");
 		console.log("id\t: " + id);
-		console.log("category\t: " + category);
+		console.log("board\t: " + board);
 		console.log("username\t: " + username);
 		console.log();
 	}
@@ -40,23 +40,19 @@ router.post('/get_post', function(req, res, next){
 
 	if(!auth.validate_user(session, username)) {
 	
-		console.log("validate_user failed");
-		console.log();
-		res.send("INVALID");
-		return;
+		console.log("validate_user fail");
+		return res.sendStatus(404);
 
 	} else {
 		
-		console.log("validate_user success");
-		console.log();
-		res.send("VALID");
+		console.log("validate_user succ");
 		
 	}
 
 	connection.connect();
 
-	var sql = 'SELECT * FROM POST WHERE post_id=? AND category=?';
-	connection.query(sql, [post_id, category], function (err, rows, field){
+	var sql = 'SELECT * FROM POST WHERE post_id=? AND board=?';
+	connection.query(sql, [post_id, board], function (err, rows, field){
 		if(err) {
 			throw err;
 		}
@@ -77,12 +73,47 @@ router.post('/get_post', function(req, res, next){
  * - validate user, add post data to db
  *
  * POST form data
- * - post title, data, category, ... ( check database schema )
+ * -  
  * - username
  */
 router.post('/write_post', function(req, res, next){
 	
-	if(!req.body.post_title || !req.)
+	var param = req.body.board & req.body.title & req.body.content & req.body.username; 
+	if(!param) {
+		console.log("param not given");
+		returen res.sendStatus(404);
+	}
+
+	var session	= req.session;
+
+	var board		= req.body.board;
+	var title		= req.body.title;
+	var content		= req.body.content;
+	var username 	= req.body.username;
+
+	if(!auth.validate_user(session, username)) {
+		
+		console.log("validate_user fail");
+		return res.sendStatus(404);
+	
+	} else {
+
+		console.log("validate_user succ");
+
+	}
+
+	connection.connect();
+
+	var insert = 'INSERT INTO POST (user_id, username, board, title, content, hit) VALUES ?';
+	var values = [NULL, username, board, title, content, 0];
+	connection.query(insert, [values], function (err, result){
+		if(err) {
+			throw err;
+		}
+		console.log(result);
+	});
+
+	connection.end();
 });
 
 
@@ -94,7 +125,62 @@ router.post('/write_post', function(req, res, next){
  * - username
  */
 router.post('/edit_post', function(req, res, next){
-	// TODO : implement
+	
+	var param = req.body.board & req.body.post_id & req.body.content & req.body.username;
+	if(!param) {
+		console.log("param not given");
+		return res.sendStatus(404);
+	}
+
+	var session = req.session;
+
+	var board		= req.body.board;
+	var post_id		= req.body.post_id;
+	var content		= req.body.content;
+	var username	= req.body.username;
+
+	if(!auth.validate_user(session, username)) {
+
+		console.log("validate_user fail");
+		return res.sendStatus(404);
+	
+	} else {
+
+		console.log("validate_user succ");
+	
+	}
+
+	connection.connect();
+
+	var post_exists;
+	var check 	= 'SELECT * FROM POST WHERE post_id=? AND board=?';
+	var update 	= 'UPDATE POST SET content=? WHERE post_id=? AND board=?';
+	
+	connection.query(check, [post_id, board], function (err, rows, field) {
+		if(err) {
+			throw err;
+		}
+
+		if(rows) {
+			post_exists = true;
+		} else {
+			post_exists = false;
+			console.log("no such post");
+
+			connection.end();
+			return res.sendStatus(404);
+		}
+	});
+
+	
+	if(post_exists)
+	connection.query(update, [content, post_id, board], function (err, result) {
+		if(err) {
+			throw err;
+		}
+	});
+
+	connection.end()
 });
 
 
@@ -106,7 +192,55 @@ router.post('/edit_post', function(req, res, next){
  * - username
  */
 router.post('/delete_post', function(req, res, next){
- 	// TODO : implement
+ 	var param = req.body.board & req.body.post_id & req.body.username;
+	if(!param) {
+		console.log("param not given");
+		return res.sendStatus(404);
+	}
+
+	var session = req.session;
+
+	var board		= req.body.board;
+	var post_id		= req.body.post_id;
+	var username	= req.body.username;
+
+	if(!auth.validate_user(session, username) {
+		console.log("validate_user fail");
+		return res.sendStatus(404);
+	} else {
+		console.log("validate_user succ");
+	}
+
+	connection.connect();
+
+	var post_exists
+	var check 	= 'SELECT * FROM POST WHERE board=? AND post_id=?';
+	var delete	= 'DELETE FROM POST WHERE board=? AND post_id=?';
+	
+	connection.query(check, [board, post_id], function (err, rows, field) {
+		if(err) {
+			throw err;
+		}
+		
+		if(rows) {
+			post_exists = true;
+		} else {
+			post_exists = false;
+			console.log("no such post");
+			
+			connection.end();
+			return res.sendStatus(404);
+		}
+	});
+
+	if(post_exists)
+	connection.query(delete, [board, post_id], function (err, result) {
+		if(err) {
+			throw err;
+		}
+	});
+
+	connection.end();
 });
 
 module.exports = router;
