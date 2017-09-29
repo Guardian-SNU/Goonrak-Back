@@ -44,13 +44,13 @@ var validate_writeable = function(session, username, board_id){
 	}
 
 	connection.connect();
-	connection.query("SELECT read_level FROM BOARD WHERE board_id=?", board_id, function (err, rows, field){
+	connection.query("SELECT write_level FROM BOARD WHERE board_id=?", board_id, function (err, rows, field){
 			if(err) {
 				return false;
 			}
 
 			if(rows){
-				var level = rows[0].read_level;
+				var level = rows[0].write_level;
 				return user_auth.validate_user_level(level);
 			} else {
 				return false;
