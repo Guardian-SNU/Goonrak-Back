@@ -30,12 +30,11 @@ router.get('/get_user_list', function(req, res, next){
 	if(['all', 'member', 'regular', 'ob'].indexOf(type) == -1){
 		return res.status(400).json({"resultcode": 400, "message": "Invalid type"});
 	}
-	/*
+	
 	// not admin
 	if(!session.username || !auth.validate_user_level(session, session.username, 2)){
 		return res.status(401).json({"resultcode": 401, "message": "Not admin"});
 	}
-	*/
 
 	var sql = '';
 	switch(type){
@@ -91,14 +90,12 @@ router.post('/edit_user_type', function(req, res, next){
 		return res.status(400).json({"resultcode": 400, "message": "Invalid type"});
 	}
 
-	/*
 	// not admin
 	if(!session.username || !auth.validate_user_level(session, session.username, 2)){
 		return res.status(401).json({"resultcode": 401, "message": "Not admin"});
 	}
-	*/
 
-	var sql = 'update USER set is_club_member = ? where username = ?';
+	var sql = 'UPDATE USER SET is_club_member = ? WHERE username = ?';
 
 	connection.query(sql, [member_types[type], username], function (err, rows, field){
 		if(err) {
@@ -114,5 +111,44 @@ router.post('/edit_user_type', function(req, res, next){
 	});
 
 });
+
+/* delete_user
+ *	- delete user
+ *
+ * POST form data
+ *  - username : user to be deleted
+ */
+router.post('/delete_user', function(req, res, next){
+	
+	var session	= req.session;
+	var username = req.body.username;
+
+	if(!username){
+		res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
+	}
+
+	// not admin
+	if(!session.username || !auth.validate_user_level(session, session.username, 2)){
+		return res.status(401).json({"resultcode": 401, "message": "Not admin"});
+	}
+
+	var sql = "DELETE USER, LOGIN FROM USER WHERE INNER JOIN LOGIN ON USER.username = LOGIN.username WHERE username = ?";
+
+
+	connection.query(sql_user, username, function (err, rows, field){
+		if(err) {
+			return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
+		}
+
+		if(rows) {
+			return res.status(200).json({"resultcode": 200, "message": "successfully deleted"});
+		} else {
+			return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
+		}
+		
+	});
+
+});
+
 
 module.exports = router;
