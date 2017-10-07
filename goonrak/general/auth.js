@@ -33,7 +33,7 @@ var validate_user = function(session, username){
 // check user's level
 var validate_user_level = function(session, username, level){
 	
-	if(!validate_user(session, username){
+	if(!validate_user(session, username)){
 		return false;
 	}
 
