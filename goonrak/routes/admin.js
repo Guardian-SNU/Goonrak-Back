@@ -117,6 +117,8 @@ router.post('/edit_user_type', function(req, res, next){
  *
  * POST form data
  *  - username : user to be deleted
+ *
+ *  TODO: check functionality after register function is made
  */
 router.post('/delete_user', function(req, res, next){
 	
