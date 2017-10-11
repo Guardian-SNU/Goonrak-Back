@@ -12,7 +12,12 @@ var TOKEN_EXPIREATION_TIME = 36000000;
 // TODO: add route, if SSL added, change http to https
 var VERIFICATION_ADDRESS = 'http://goonrak.snucse.org:9999/<route>/?token='
 
-// send email
+/* send email
+ *
+ * host : user IP
+ * address : user email address
+ * res : response object
+ */
 var send_verification_email = function(host, address, res){
 
 	// token for email_verification
@@ -57,7 +62,12 @@ var send_verification_email = function(host, address, res){
 	res.status(200).json({"resultcode":200, "message": "successfully sent email"});
 };
 
-// verify token
+/* verify token
+ * 
+ * host : user IP
+ * token : user token input
+ * res : response object
+ */
 var verify_token = function(host, token, res){
 	// delete expired tokens
 	connection.query("DELETE FROM EMAIL_TOKEN WHERE expires < ?", Date.now(), function(err, result){
