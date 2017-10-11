@@ -9,9 +9,9 @@ var email = require('../general/email_auth.js');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-	// test
-	//email.send_verification_email('1', 'def6488@naver.com');
-	email.verify_token('1', '519', res);
+	// test2
+	email.send_verification_email('1', 'highnoo70@gmail.com');
+	//email.verify_token('1', '519', res);
 });
 
 module.exports = router;

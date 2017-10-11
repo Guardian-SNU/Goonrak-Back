@@ -84,6 +84,7 @@ var verify_token = function(host, token, res){
 
 		// success
 		if(rows[0].token == token){
+			// TODO: do_some_process()
 			res.status(200).json({"resultcode":200, "message": "successfully verified"});
 		} else {	
 			res.status(400).json({"resultcode":400, "message": "wrong token"});
