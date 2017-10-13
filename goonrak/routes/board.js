@@ -45,8 +45,10 @@ router.post('/get_post', function (req, res, next) {
 
 			if(rows) {
 				res.send(rows);
+				return res.sendStatus(200);
 			} else {
 				res.send("NO POST");
+				return res.sendStatus(404);
 			}
 		});
 	} else {
@@ -93,6 +95,7 @@ router.post('/write_post', function(req, res, next){
 			}
 
 			console.log(result);
+			return res.sendStatus(200);
 		});
 	} else {
 		res.send("NO AUTH");
@@ -159,6 +162,8 @@ router.post('/edit_post', function(req, res, next){
 			if(err) {
 				throw err;
 			}
+
+			return res.sendStatus(404);
 		});
 
 	} else {
@@ -224,6 +229,8 @@ router.post('/delete_post', function(req, res, next){
 			if(err) {
 				throw err;
 			}
+
+			res.sendStaus(200);
 		});
 
 	} else {
