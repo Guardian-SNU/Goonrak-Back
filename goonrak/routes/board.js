@@ -1,8 +1,8 @@
-var express		= require('express');
-var router		= express.Router();
+var express	= require('express');
+var router	= express.Router();
 
-var auth		= require('../general/auth.js');
-var mysql		= require('mysql');
+var auth	= require('../general/auth.js');
+var mysql	= require('mysql');
 var db_config	= require('../config/db_config.js');
 var connection	= mysql.createConnection(db_config);
 
@@ -33,7 +33,6 @@ router.post('/get_post', function (req, res, next) {
 	var can_get	= board_auth.validate_read(session, username, board);
 
 	//connection.connect();
-
 	if (can_get) {
 		var get_post	= "SELECT * FROM POST WHERE board=? AND post_id=?";
 		var q_param	= [board, post_id];
@@ -163,7 +162,7 @@ router.post('/edit_post', function(req, res, next){
 				throw err;
 			}
 
-			return res.sendStatus(404);
+			return res.sendStatus(200);
 		});
 
 	} else {
@@ -230,7 +229,7 @@ router.post('/delete_post', function(req, res, next){
 				throw err;
 			}
 
-			res.sendStaus(200);
+			return res.sendStaus(200);
 		});
 
 	} else {
