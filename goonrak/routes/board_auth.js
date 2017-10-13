@@ -7,7 +7,7 @@ var USER_LEVEL		= 0;
 var MEMBER_LEVEL	= 1;
 var ADMIN_LEVEL		= 2;
 
-var validate_read = function(session, username, board_id) {
+var validate_read = function (session, username, board_id) {
 	
 	//var user = session.username;
 
@@ -37,7 +37,7 @@ var validate_read = function(session, username, board_id) {
 };
 
 
-var validate_write = function(session, username, board_id) {
+var validate_write = function (session, username, board_id) {
 	
 	//var user = session.username;
 
