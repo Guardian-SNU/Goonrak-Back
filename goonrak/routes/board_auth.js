@@ -15,11 +15,11 @@ var validate_read = function(session, username, board_id) {
 		return false;
 	}
 
-	var query	= "SELECT read_level FROM BOARD WHERE board_id=?";
+	var sql	= "SELECT read_level FROM BOARD WHERE board_id=?";
 	var q_param	= [board_id];
 
 	//connection.connect();
-	connection.query(query, q_param, function (err, rows, fields) {
+	connection.query(sql, q_param, function (err, rows, fields) {
 		if(err) {
 			return false;
 		}
@@ -45,11 +45,11 @@ var validate_write = function(session, username, board_id) {
 		return false;
 	}
 
-	var query	= "SELECT write_level FROM BOARD WHERE board_id=?";
+	var sql	= "SELECT write_level FROM BOARD WHERE board_id=?";
 	var q_param	= [board_id];
 
 	//connection.connect();
-	connection.query(query, q_param, function (err, rows, fields) {
+	connection.query(sql, q_param, function (err, rows, fields) {
 		if(err) {
 			return false;
 		}
