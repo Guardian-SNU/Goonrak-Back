@@ -6,7 +6,7 @@ var mysql	= require('mysql');
 var db_config	= require('../config/db_config.js');
 var connection	= mysql.createConnection(db_config);
 
-var board_auth	= require('./board_auth.js');
+var board_auth	= require('../general/board_auth.js');
 
 /* get_post
  * - validate user, and return post data
