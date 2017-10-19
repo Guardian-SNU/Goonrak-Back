@@ -20,8 +20,8 @@ router.post('/get_post', function (req, res, next) {
 
 	var param = req.body.username & req.body.board & req.body.post_id;
 	if (!param) {
-		console.log("param not given");
-		return res.sendStatus(404);
+		//console.log("param not given");
+		return res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
 	}
 
 
@@ -39,20 +39,20 @@ router.post('/get_post', function (req, res, next) {
 
 		connection.query(get_post, q_param, function (err, rows, fields) {
 			if(err) {
-				throw err;
+				//throw err;
+				console.log(err);
+				return res.status(500).json({"resultcode": 500, "message": "Internal Server Error"});
 			}
 
 			if(rows) {
 				res.send(rows);
-				return res.sendStatus(200);
+				return res.status(200).json({"resultcode": 200, "message": "Get Post Successful"});
 			} else {
-				res.send("NO POST");
-				return res.sendStatus(404);
+				return res.status(200).json({"resultcode": 200, "message": "No Such Post"});
 			}
 		});
 	} else {
-		res.send("NO AUTH");
-		return res.sendStatus(404);
+		return res.status(403).json({"resultcode": 403, "message": "User Auth Fail"});
 	}
 
 	//connection.end();
@@ -71,8 +71,7 @@ router.post('/write_post', function(req, res, next){
 	
 	var param = req.body.username & req.body.board & req.body.title & req.body.content; 
 	if (!param) {
-		console.log("param not given");
-		return res.sendStatus(404);
+		return res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
 	}
 
 	var session	= req.session;
@@ -90,15 +89,16 @@ router.post('/write_post', function(req, res, next){
 
 		connection.query(write_post, [q_param], function (err, result) {
 			if(err) {
-				throw err;
+				//throw err;
+				console.log(err);
+				return res.status(500).json({"resultcode": 500, "message": "Internal Server Error"});
 			}
 
 			console.log(result);
-			return res.sendStatus(200);
+			return res.status(200).json({"resultcode": 200, "message": "Write Post Successful"});
 		});
 	} else {
-		res.send("NO AUTH");
-		return res.sendStatus(404);
+		return res.status(403).json({"resultcode": 200, "message": "User Auth Fail"});
 	}
 
 	//connection.end();
@@ -117,8 +117,7 @@ router.post('/edit_post', function(req, res, next){
 	
 	var param = req.body.username & req.body.board & req.body.post_id & req.body.content;
 	if (!param) {
-		console.log("param not given");
-		return res.sendStatus(404);
+		return res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
 	}
 
 	var session	= req.session;
@@ -137,7 +136,9 @@ router.post('/edit_post', function(req, res, next){
 
 		connection.query(check, c_param, function (err, rows, fields) {
 			if (err) {
-				throw err;
+				//throw err;
+				console.log(err);
+				return res.status(500).json({"resultcode": 500, "message": "Internal Server Error"});
 			}
 
 			if (rows) {
@@ -148,8 +149,7 @@ router.post('/edit_post', function(req, res, next){
 		});
 
 	} else {
-		res.send("NO AUTH");
-		return res.sendStatus(404);
+		return res.status(403).json({"resultcode": 403, "message": "User Auth Fail"});
 	}
 
 
@@ -159,15 +159,16 @@ router.post('/edit_post', function(req, res, next){
 
 		connection.query(edit_post, e_param, function (err, rows, fields) {
 			if(err) {
-				throw err;
+				//throw err;
+				console.log(err);
+				return res.status(500).json({"resultcode": 500, "message": "Internal Server Error"});
 			}
 
-			return res.sendStatus(200);
+			return res.status(200).json({"resultcode": 200, "message": "Edit Post Successful"});
 		});
 
 	} else {
-		res.send("NO POST");
-		return res.sendStatus(404);
+		return res.status(200).json({"resultcode": 200, "message": "No Such Post"});
 	}
 	
 	//connection.end();
@@ -186,8 +187,7 @@ router.post('/delete_post', function(req, res, next){
  	
 	var param = req.body.username & req.body.board & req.body.post_id;
 	if(!param) {
-		console.log("param not given");
-		return res.sendStatus(404);
+		return res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
 	}
 
 	var session	= req.session;
@@ -205,7 +205,9 @@ router.post('/delete_post', function(req, res, next){
 
 		connection.query(check, c_param, function (err, rows, fields) {
 			if(err) {
-				throw err;
+				//throw err;
+				console.log(err);
+				return res.status(500).json({"resultcode": 500, "message": "Internal Server Error"});
 			}
 
 			if(rows) {
@@ -215,8 +217,7 @@ router.post('/delete_post', function(req, res, next){
 			}
 		});
 	} else {
-		res.send("NO AUTH");
-		return res.sendStatus(404);
+		return res.status(403).json({"resultcode": 403, "message": "User Auth Fail"});
 	}
 
 
@@ -226,15 +227,16 @@ router.post('/delete_post', function(req, res, next){
 
 		connection.query(delete_post, d_param, function (err, result) {
 			if(err) {
-				throw err;
+				//throw err;
+				console.log(err);
+				return res.status(500).json({"resultcode": 500, "message": "Internal Server Error"});
 			}
 
-			return res.sendStaus(200);
+			return res.status(200).json({"resultcode": 200, "message": "Delete Post Successful"});
 		});
 
 	} else {
-		res.send("NO POST");
-		return res.sendStatus(404);
+		return res.status(200).json({"resultcode": 200, "message": "No Such Post"});
 	}
 
 	//connection.end();
