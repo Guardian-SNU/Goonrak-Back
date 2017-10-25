@@ -147,7 +147,7 @@ router.post('/register', function(req, res, next) {
     var password_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
 
 	var usertable_post={username:username,nickname:nickname,email:email,is_club_member:0,is_admin:0};
-	var logintable_post={username:username,salt:salt,password:password};
+	var logintable_post={username:username,salt:salt,password:password_hash};
 
 
     connection.query('SELECT * FROM USER WHERE username=?', username, function(err, rows, field){
