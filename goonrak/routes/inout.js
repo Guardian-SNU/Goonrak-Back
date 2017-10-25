@@ -6,6 +6,8 @@ var mysql = require('mysql');
 var db_config = require('../config/db_config.js');
 var connection = mysql.createConnection(db_config);
 
+var email_auth = require('../general/email_auth.js');
+
 /* login
  * - get username, password from user, authenticate it, and give sessions to user
  * POST form data
@@ -46,11 +48,16 @@ router.post('/login', function(req, res, next) {
 			var salt = rows[0].salt;
 			var pw_hash = rows[0].password;
 			var user_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
-
+			var email_auth = rows[0].email_auth;
 			// correct password given
+			if(email_auth == false){
+				send_data["resultcode"]=200;
+				send_data["log"]='no email verification'
+				res.status(200).json(send_data);
+			}
 			if(pw_hash == user_hash){
 				// TODO : login
-                send_data["resultcode"]=200
+                send_data["resultcode"]=200;
 				send_data["success"]=1;
 				send_data["log"]='Login successful';
 
@@ -64,7 +71,7 @@ router.post('/login', function(req, res, next) {
 			// wrong password given
 			else{
 				// TODO : send JSON
-                send_data["resultcode"]=200
+                send_data["resultcode"]=200;
 				send_data["success"]=0;
 				send_data["log"]='Wrong info';
 				res.status(200).json(send_data);
@@ -75,7 +82,7 @@ router.post('/login', function(req, res, next) {
 		// no matching username
 		else{
 			// TODO : send JSON
-			send_data["resultcode"]=200
+			send_data["resultcode"]=200;
 			send_data["success"]=0;
 			send_data["log"]='Wrong info';
 			res.status(200).json(send_data);
@@ -168,7 +175,7 @@ router.post('/register', function(req, res, next) {
             // TODO : NEED SOME ERROR HANDLEING
         }
     })
-
+    email_auth.send_verification_email(username,email);
 
 });
 
