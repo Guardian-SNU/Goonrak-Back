@@ -71,5 +71,6 @@ var auth_fail_response = { "resultcode": 403, "message": "user auth fail" };
 module.exports = {
 	validate_login			: validate_login,
 	validate_user				: validate_user,
+	validate_user_level : validate_user_level,
 	auth_fail_response	: JSON.stringify(auth_fail_response),
 };

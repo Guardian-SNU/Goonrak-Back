@@ -11,14 +11,13 @@ var board_auth	= require('../general/board_auth.js');
 /* get_post
  * - validate user, and return post data
  * 
- * POST form data
- * - post_id
- * - category
- * - username
+ * GET parameters
+ * - id
+ * - board
  */
-router.post('/get_post', function (req, res, next) { 
+router.get('/get_post', function (req, res, next) { 
 
-	var param = req.body.username & req.body.board & req.body.post_id;
+	var param = req.query.id & req.query.board;
 	if (!param) {
 		//console.log("param not given");
 		return res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
@@ -26,9 +25,9 @@ router.post('/get_post', function (req, res, next) {
 
 
 	var session	= req.session;
-	var username	= req.body.username;
-	var board	= req.body.board;
-	var post_id	= req.body.post_id;
+	var username	= session.username;
+	var board	= req.query.board;
+	var post_id	= req.query.id;
 
 	var can_get	= board_auth.validate_read(session, username, board);
 
