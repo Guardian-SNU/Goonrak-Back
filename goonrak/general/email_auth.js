@@ -2,6 +2,7 @@
 
 var mysql = require('mysql');
 var nodemailer = require('nodemailer');
+var crypto = require('crypto');
 var db_config = require('../config/db_config.js');
 var email_config = require('../config/email_config.js');
 var connection = mysql.createConnection(db_config);
@@ -10,7 +11,7 @@ var connection = mysql.createConnection(db_config);
 var TOKEN_EXPIREATION_TIME = 36000000;
 
 // TODO: add route, if SSL added, change http to https
-var VERIFICATION_ADDRESS = 'http://goonrak.snucse.org:9999/<route>/?token='
+var VERIFICATION_ADDRESS = 'http://goonrak.snucse.org:9999/auth/activate?'
 
 /* send email
  *
@@ -29,18 +30,19 @@ var send_verification_email = function(username, address, res){
     };
 
     var salt=randomstring(16);
-    var token = crypto.createHash('sha256').update(salt + password).digest('hex');
+    var token = crypto.createHash('sha256').update(salt).digest('hex');
 
     var smtpTransport = nodemailer.createTransport({
         service: 'Gmail',
         auth: email_config,
     });
 
+	var mail_text = VERIFICATION_ADDRESS + 'username='+ username + '&token='+ token;
     var mailOptions = {
         from: 'no_reply <snucsguard@gmail.com>',
         to: address,
         subject: '[Goonrak] Email Verification Token',
-        text: '군락 이메일 인증을 위하여 다음의 링크를 클릭해주세요.\n' + VERIFICATION_ADDRESS + token,
+        text: '군락 이메일 인증을 위하여 다음의 링크를 클릭해주세요.\n' + mail_text,
     };
 
 
@@ -60,14 +62,14 @@ var send_verification_email = function(username, address, res){
     });
 
     // send_email
-    smtpTransport.sendMail(mailOptions, function(err, res){
+    smtpTransport.sendMail(mailOptions, function(err, mail_res){
         if(err){
-            res.status(500).json({"resultcode":500, "message": "Internal server error"});
+            res.status(500).json({"resultcode":500, "message":"Internal server error"});
         }
+
+    	res.status(200).json({"resultcode":200, "message": "successfully sent email"});
         smtpTransport.close();
     });
-
-    res.status(200).json({"resultcode":200, "message": "successfully sent email"});
 };
 
 /* verify token

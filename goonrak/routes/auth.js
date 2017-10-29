@@ -32,15 +32,11 @@ router.post('/login', function(req, res, next) {
         return res.status(400).json({"resultcode": 400, "message": "Already signed in"});
 	}
 
-
-
-	// better hide table name?...
-	connection.query('SELECT * FROM LOGIN WHERE username=?', username, function(err, rows, field){
+	connection.query('SELECT l.username, l.salt, l.password, u.email_auth FROM LOGIN l, USER u WHERE u.username=l.username AND l.username=?', username, function(err, rows, field){
 		
 		if(err){
 			console.log(err)
             return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-			// TODO : NEED SOME ERROR HANDLEING
 		}
 
 		// check username uniqueness
@@ -49,44 +45,39 @@ router.post('/login', function(req, res, next) {
 			var pw_hash = rows[0].password;
 			var user_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
 			var email_auth = rows[0].email_auth;
+			console.log(email_auth)
 			// correct password given
-			if(email_auth == false){
-				send_data["resultcode"]=200;
+			if(!email_auth){
+				send_data["resultcode"]=401;
 				send_data["log"]='no email verification'
-				res.status(200).json(send_data);
+				return res.status(401).json(send_data);
 			}
 			if(pw_hash == user_hash){
-				// TODO : login
                 send_data["resultcode"]=200;
 				send_data["success"]=1;
 				send_data["log"]='Login successful';
 
 				sess.username=username;
 
-				res.status(200).json(send_data);
-				//res.send("LOGIN SUCCESSFUL!");
+				return res.status(200).json(send_data);
 
 			}
 
 			// wrong password given
 			else{
-				// TODO : send JSON
-                send_data["resultcode"]=200;
+                send_data["resultcode"]=401;
 				send_data["success"]=0;
-				send_data["log"]='Wrong info';
-				res.status(200).json(send_data);
-				//res.send("WRONG INFO");
+				send_data["message"]='Wrong info';
+				res.status(401).json(send_data);
 			}
 		}
 
 		// no matching username
 		else{
-			// TODO : send JSON
-			send_data["resultcode"]=200;
+			send_data["resultcode"]=401;
 			send_data["success"]=0;
-			send_data["log"]='Wrong info';
-			res.status(200).json(send_data);
-			//res.send("WRONG INFO");
+			send_data["message"]='Wrong info';
+			res.status(401).json(send_data);
 		}
 	});
 });
@@ -97,7 +88,6 @@ router.post('/login', function(req, res, next) {
  * POST form data
  */
 router.post('/logout', function(req, res, next) {
-	// TODO : implement
 	var sess=req.session;
 	if(sess.username) {
         req.session.destroy(function (err) {
@@ -156,27 +146,41 @@ router.post('/register', function(req, res, next) {
             return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
             // TODO : NEED SOME ERROR HANDLEING
         }
-    	if(rows){
+    	if(rows.length > 0){
+			console.log(rows);
             return res.status(400).json({"resultcode": 400, "message": "Exist username"});
         }
-    }
 
-	connection.query('INSERT INTO USER SET ?',usertable_post,function(err,result){
-        if(err){
-            console.log(err)
-            return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-            // TODO : NEED SOME ERROR HANDLEING
-        }
-	})
-    connection.query('INSERT INTO LOGIN SET ?',logintable_post,function(err,result){
-        if(err){
-            console.log(err)
-            return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-            // TODO : NEED SOME ERROR HANDLEING
-        }
-    })
-    email_auth.send_verification_email(username,email);
+		connection.query('INSERT INTO USER SET ?', usertable_post, function(err, result){
+			if(err){
+				console.log(err);
+				return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
+			}
 
+			connection.query('INSERT INTO LOGIN SET ?', logintable_post, function(err, result){
+				if(err){
+					consolg.log(err);
+					return res.status(500).json({"resultcode": 400, "message": "Internal server error"});
+				}
+
+				// successfully regiestered, send verification email
+				email_auth.send_verification_email(username, email, res);
+			});
+		});
+    });
+});
+
+/* activate
+ *	- activate account ( validating email )
+ *
+ * GET parameters
+ * 	- username
+ * 	- token
+ */
+router.get('/activate', function(req, res, next) {
+	var token = req.query.token;
+	var username = req.query.username;
+	email_auth.verify_token(username, token, res);
 });
 
 module.exports = router;
