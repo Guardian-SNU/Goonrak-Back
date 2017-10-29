@@ -144,10 +144,8 @@ router.post('/register', function(req, res, next) {
         if(err){
             console.log(err)
             return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-            // TODO : NEED SOME ERROR HANDLEING
         }
     	if(rows.length > 0){
-			console.log(rows);
             return res.status(400).json({"resultcode": 400, "message": "Exist username"});
         }
 
