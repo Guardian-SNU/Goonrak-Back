@@ -45,7 +45,6 @@ router.post('/login', function(req, res, next) {
 			var pw_hash = rows[0].password;
 			var user_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
 			var email_auth = rows[0].email_auth;
-			console.log(email_auth)
 			// correct password given
 			if(!email_auth){
 				send_data["resultcode"]=401;

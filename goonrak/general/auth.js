@@ -1,4 +1,5 @@
 var mysql = require('mysql');
+var Promise = require('promise');
 var db_config = require('../config/db_config.js');
 var connection = mysql.createConnection(db_config);
 
@@ -7,61 +8,66 @@ var MEMBER_LEVEL = 1;
 var ADMIN_LEVEL = 2;
 
 // check user is logged in
-var validate_login = function(session){
+var validate_login = async function(session){
 	var login = session.login;
 
-	if(login){
-		return true;
-	}
-	else{
-		return false;
-	}
+	return new Promise(function(resolve, reject){
+		if(login){
+			resolve(true);
+		} else {
+			resolve(false);
+		}
+	});
 };
 
 // check user's username
-var validate_user = function(session, username){
+var validate_user = async function(session, username){
 	var user = session.username;
 
-	if(user === username){
-		return true;
-	}
-	else{
-		return false;
-	}
+	return new Promise(function(resolve, reject){
+		if(user === username){
+			resolve(true);
+		} else {
+			resolve(false);
+		}
+	});
 };
 
 // check user's level
-var validate_user_level = function(session, username, level){
-	
-	if(!validate_user(session, username)){
-		return false;
-	}
+var validate_user_level = async function(session, username, level){
 
-	if(level == USER_LEVEL){
-		return true;
-	}
-	
-	connection.connect();
-	connection.query("SELECT is_club_member, is_admin FROM USER where username=?", username, function(err, rows, fields){
-			
-		if (err){
-			return false;
+	return new Promise(async function(resolve, reject){
+		// if username is wrong, return false
+		if(!await validate_user(session, username)){
+			resolve(false);
 		}
+
+		// if level is USER_LEVEL ( open to all ) return true
+		if(level == USER_LEVEL){
+			resolve(true);
+		}
+
+		connection.query("SELECT is_club_member, is_admin FROM USER where username=?", username, async function(err, rows, fields){
 			
-		if(rows){
-			if(level == MEMBER_LEVEL && (rows[0].is_club_member || rows[0].is_admin)){
-				return true;
+			if (err){
+				resolve(false);
 			}
-			else if(level == ADMIN_LEVEL && rows[0].is_admin){
-				return true;
+			
+			if(rows.length > 0){
+				if(level == MEMBER_LEVEL && (rows[0].is_club_member || rows[0].is_admin)){
+					resolve(true);
+				}
+				else if(level == ADMIN_LEVEL && rows[0].is_admin){
+					resolve(true);
+				}
+				else{
+					resolve(false);
+				}
 			}
 			else{
-				return false;
+				resolve(false);
 			}
-		}
-		else{
-			return false;
-		}
+		});
 	});
 }
 
@@ -69,8 +75,12 @@ var validate_user_level = function(session, username, level){
 var auth_fail_response = { "resultcode": 403, "message": "user auth fail" };
 
 module.exports = {
-	validate_login			: validate_login,
-	validate_user				: validate_user,
+	validate_login		: validate_login,
+	validate_user		: validate_user,
 	validate_user_level : validate_user_level,
 	auth_fail_response	: JSON.stringify(auth_fail_response),
+
+	USER_LEVEL 			: USER_LEVEL,
+	MEMBER_LEVEL		: MEMBER_LEVEL,
+	ADMIN_LEVEL			: ADMIN_LEVEL,
 };

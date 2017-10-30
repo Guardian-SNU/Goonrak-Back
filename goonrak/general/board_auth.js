@@ -7,63 +7,68 @@ var USER_LEVEL		= 0;
 var MEMBER_LEVEL	= 1;
 var ADMIN_LEVEL		= 2;
 
-var validate_read = function (session, username, board_id) {
+var validate_read = async function (session, username, board_id) {
 	
-	//var user = session.username;
-
-	if(!user_auth.validate_user(session, username)) {
-		return false;
-	}
-
-	var sql		= "SELECT read_level FROM BOARD WHERE board_id=?";
-	var q_param	= [board_id];
-
-	//connection.connect();
-	connection.query(sql, q_param, function (err, rows, fields) {
-		if(err) {
-			return false;
+	return new Promise(async function(resolve, reject) {
+		if(!await user_auth.validate_user(session, username)) {
+			resolve(false);
 		}
 
-		if(rows) {
-			var level = rows[0].read_level;
-			return user_auth.validate_user_level(session, username, level);
-		} else {
-			return false;
-		}
+		var sql		= "SELECT read_level FROM BOARD WHERE board_id=?";
+		var q_param	= [board_id];
+
+		connection.query(sql, q_param, async function (err, rows, fields) {
+			if(err) {
+				resolve(false);
+			}
+
+			if(rows.length > 0) {
+				var level = rows[0].read_level;
+				var validated = await user_auth.validate_user_level(session, username, level);
+
+				if(validated){
+					resolve(true);
+				} else {
+					resolve(false);
+				}
+
+			} else {
+				resolve(false);
+			}
+		});
 	});
-
-	//connection.end();
-
 };
 
 
 var validate_write = function (session, username, board_id) {
 	
-	//var user = session.username;
-
-	if(!user_auth.validate_user(session, username)) {
-		return false;
-	}
-
-	var sql		= "SELECT write_level FROM BOARD WHERE board_id=?";
-	var q_param	= [board_id];
-
-	//connection.connect();
-	connection.query(sql, q_param, function (err, rows, fields) {
-		if(err) {
-			return false;
+	return new Promise(async function(resolve, reject) {
+		if(!await user_auth.validate_user(session, username)) {
+			resolve(false);
 		}
 
-		if(rows) {
-			var level = rows[0].write_level;
-			return user_auth.validate_user_level(session, username, level);
-		} else {
-			return false;
-		}
-	});
+		var sql		= "SELECT write_level FROM BOARD WHERE board_id=?";
+		var q_param	= [board_id];
 
-	//connection.end();
+		connection.query(sql, q_param, async function (err, rows, fields) {
+			if(err) {
+				resolve(false);
+			}
 
+			if(rows.length > 0) {
+				var level = rows[0].write_level;
+				var validated = await user_auth.validate_user_level(session, username, level)
+
+				if(validated){
+					resolve(true);
+				} else {
+					resolve(false);
+				}
+			} else {
+				resolve(false);
+			}
+		});
+	});	
 };
 
 module.exports = {
