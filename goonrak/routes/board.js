@@ -1,7 +1,7 @@
 var express	= require('express');
 var router	= express.Router();
 
-var auth	= require('../general/auth.js');
+var auth	= require('../general/user_auth.js');
 var mysql	= require('mysql');
 var db_config	= require('../config/db_config.js');
 var connection	= mysql.createConnection(db_config);

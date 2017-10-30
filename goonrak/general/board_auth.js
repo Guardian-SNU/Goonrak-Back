@@ -1,4 +1,4 @@
-var user_auth	= require('../general/auth.js');
+var user_auth	= require('../general/user_auth.js');
 var mysql	= require('mysql');
 var db_config	= require('../config/db_config.js');
 var connection	= mysql.createConnection(db_config);
