@@ -81,10 +81,9 @@ router.post('/write_post', function(req, res, next){
 
 	var can_write	= board_auth.validate_write(session, username, board);
 	
-	//connection.connect();
 	if (can_write) {
-		var write_post = "INSERT INTO POST (user_id, username, board, title, content, hit) VALUES ?";
-		var	q_param	= [[NULL, username, board, title, content, 0]];
+		var write_post = "INSERT INTO POST (username, board, title, content, hit) VALUES ?";
+		var	q_param	= [[username, board, title, content, 0]];
 
 		connection.query(write_post, [q_param], function (err, result) {
 			if(err) {
@@ -97,10 +96,8 @@ router.post('/write_post', function(req, res, next){
 			return res.status(200).json({"resultcode": 200, "message": "Write Post Successful"});
 		});
 	} else {
-		return res.status(403).json({"resultcode": 200, "message": "User Auth Fail"});
+		return res.status(401).json({"resultcode": 401, "message": "User Auth Fail"});
 	}
-
-	//connection.end();
 
 });
 
