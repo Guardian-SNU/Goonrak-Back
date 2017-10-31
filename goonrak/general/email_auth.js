@@ -83,8 +83,13 @@ var verify_token = function(username, token, res){
     // compare token
     connection.query("SELECT username FROM EMAIL_TOKEN WHERE token=?", token, function(err, rows, fields){
         if(err) {
-            res.status(500).json({"resultcode": 500, "message": "verify failed"});
+            res.status(500).json({"resultcode": 500, "message": "Internal server error"});
         }
+
+		if(rows.length==0) {
+			res.status(401).json({"resultcode": 401, "message": "Not valid token"});
+		}
+
         connection.query("UPDATE USER SET email_auth=true WHERE username=?",username,function(err, rows, field) {
             if (err) {
                 console.log(err)
