@@ -25,7 +25,7 @@ router.post('/login', function(req, res, next) {
 
 	// if required fields are not given
 	if(!username || !password){
-		return res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
+		return res.status(400).json({"resultcode": 400, "message": "Parameters not given"});
 	}
 
 	if(sess.username){
@@ -48,13 +48,13 @@ router.post('/login', function(req, res, next) {
 			// correct password given
 			if(!email_auth){
 				send_data["resultcode"]=401;
-				send_data["log"]='no email verification'
+				send_data["message"]='No email verification';
 				return res.status(401).json(send_data);
 			}
 			if(pw_hash == user_hash){
                 send_data["resultcode"]=200;
 				send_data["success"]=1;
-				send_data["log"]='Login successful';
+				send_data["message"]='Login successful';
 
 				sess.username=username;
 
@@ -65,7 +65,6 @@ router.post('/login', function(req, res, next) {
 			// wrong password given
 			else{
                 send_data["resultcode"]=401;
-				send_data["success"]=0;
 				send_data["message"]='Wrong info';
 				res.status(401).json(send_data);
 			}
@@ -74,7 +73,6 @@ router.post('/login', function(req, res, next) {
 		// no matching username
 		else{
 			send_data["resultcode"]=401;
-			send_data["success"]=0;
 			send_data["message"]='Wrong info';
 			res.status(401).json(send_data);
 		}
