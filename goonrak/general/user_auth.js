@@ -25,7 +25,7 @@ var validate_user = async function(session, username){
 	var user = session.username;
 
 	return new Promise(function(resolve, reject){
-		if(user === username){
+		if(user && user === username){
 			resolve(true);
 		} else {
 			resolve(false);

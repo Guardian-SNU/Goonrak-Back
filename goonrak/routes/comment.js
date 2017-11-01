@@ -11,7 +11,6 @@ var connection = mysql.createConnection(db_config);
  * 
  * POST form data
  * - post_id
- * - username
  */
 router.post('/get_comments', function(req, res, next){	
 	// TODO : implement
