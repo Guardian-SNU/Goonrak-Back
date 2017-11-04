@@ -1,7 +1,7 @@
 var express		= require('express');
 var router		= express.Router();
 
-var auth		= require('../general/auth.js');
+var auth		= require('../general/user_auth.js');
 var mysql		= require('mysql');
 var db_config	= require('../config/db_config.js');
 var connection	= mysql.createConnection(db_config);
@@ -16,7 +16,7 @@ var connection	= mysql.createConnection(db_config);
  *   - regular : return regular members' data
  *   - ob : return ob members' data
  */
-router.get('/get_user_list', function(req, res, next){ 
+router.get('/get_user_list', async function(req, res, next){ 
 
 	var session	= req.session;
 	var type = req.query.type;
@@ -32,15 +32,15 @@ router.get('/get_user_list', function(req, res, next){
 	}
 	
 	// not admin
-	if(!session.username || !auth.validate_user_level(session, session.username, 2)){
+	if(!session.username || !(await auth.validate_user_level(session, session.username, 2))){
 		return res.status(401).json({"resultcode": 401, "message": "Not admin"});
 	}
 
 	var sql = '';
 	switch(type){
-		case 'all'		: sql = 'SELECT * FROM USER'; break;
-		case 'member'	: sql = 'SELECT * FROM USER WHERE is_club_member > 0 ORDER BY is_club_member'; break;
-		case 'regular': sql = 'SELECT * FROM USER WHERE is_club_member = 1'; break;
+		case 'all'			: sql = 'SELECT * FROM USER'; break;
+		case 'member'		: sql = 'SELECT * FROM USER WHERE is_club_member > 0 ORDER BY is_club_member'; break;
+		case 'regular'		: sql = 'SELECT * FROM USER WHERE is_club_member = 1'; break;
 		case 'ob'			: sql = 'SELECT * FROM USER WHERE is_club_member = 2'; break;
 	}
 
@@ -69,7 +69,7 @@ router.get('/get_user_list', function(req, res, next){
  * 		- regular : normal member
  * 		- ob : ob member
  */
-router.post('/edit_user_type', function(req, res, next){
+router.post('/edit_user_type', async function(req, res, next){
 	
 	var session	= req.session;
 	var username = req.body.username;
@@ -91,23 +91,18 @@ router.post('/edit_user_type', function(req, res, next){
 	}
 
 	// not admin
-	if(!session.username || !auth.validate_user_level(session, session.username, 2)){
+	if(!session.username || !(await auth.validate_user_level(session, session.username, 2))){
 		return res.status(401).json({"resultcode": 401, "message": "Not admin"});
 	}
 
 	var sql = 'UPDATE USER SET is_club_member = ? WHERE username = ?';
 
-	connection.query(sql, [member_types[type], username], function (err, rows, field){
+	connection.query(sql, [member_types[type], username], function (err, result){
 		if(err) {
 			return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
 		}
 
-		if(rows) {
-			return res.status(200).json({"resultcode": 200, "message": "successfully updated"});
-		} else {
-			return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-		}
-		
+		return res.status(200).json({"resultcode": 200, "message": "successfully updated"});
 	});
 
 });
@@ -118,9 +113,8 @@ router.post('/edit_user_type', function(req, res, next){
  * POST form data
  *  - username : user to be deleted
  *
- *  TODO: check functionality after register function is made
  */
-router.post('/delete_user', function(req, res, next){
+router.post('/delete_user', async function(req, res, next){
 	
 	var session	= req.session;
 	var username = req.body.username;
@@ -130,24 +124,20 @@ router.post('/delete_user', function(req, res, next){
 	}
 
 	// not admin
-	if(!session.username || !auth.validate_user_level(session, session.username, 2)){
+	if(!session.username || !(await auth.validate_user_level(session, session.username, 2))){
 		return res.status(401).json({"resultcode": 401, "message": "Not admin"});
 	}
 
-	var sql = "DELETE USER, LOGIN FROM USER WHERE INNER JOIN LOGIN ON USER.username = LOGIN.username WHERE username = ?";
+	var sql = "DELETE u, l FROM USER u, LOGIN l WHERE u.username=l.username AND u.username=?";
 
 
-	connection.query(sql_user, username, function (err, rows, field){
+	connection.query(sql, username, function (err, result){
 		if(err) {
+			console.log(err);
 			return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
 		}
 
-		if(rows) {
-			return res.status(200).json({"resultcode": 200, "message": "successfully deleted"});
-		} else {
-			return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-		}
-		
+		return res.status(200).json({"resultcode": 200, "message": "successfully deleted"});
 	});
 
 });

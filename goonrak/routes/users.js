@@ -2,7 +2,7 @@ var express = require('express');
 var session = require('express-session');
 var router = express.Router();
 
-var auth = require('../general/auth.js');
+var auth = require('../general/user_auth.js');
 var mysql = require('mysql');
 var db_config = require('../config/db_config.js');
 var email = require('../general/email_auth.js');
