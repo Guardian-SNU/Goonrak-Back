@@ -52,14 +52,14 @@ router.post('/login', function(req, res, next) {
 			// correct password given
 			if(email_auth == false){
 				send_data["resultcode"]=200;
-				send_data["log"]='no email verification'
+				send_data["message"]='no email verification'
 				res.status(200).json(send_data);
 			}
 			if(pw_hash == user_hash){
 				// TODO : login
                 send_data["resultcode"]=200;
 				send_data["success"]=1;
-				send_data["log"]='Login successful';
+				send_data["message"]='Login successful';
 
 				sess.username=username;
 
@@ -73,7 +73,7 @@ router.post('/login', function(req, res, next) {
 				// TODO : send JSON
                 send_data["resultcode"]=200;
 				send_data["success"]=0;
-				send_data["log"]='Wrong info';
+				send_data["message"]='Wrong info';
 				res.status(200).json(send_data);
 				//res.send("WRONG INFO");
 			}
@@ -84,7 +84,7 @@ router.post('/login', function(req, res, next) {
 			// TODO : send JSON
 			send_data["resultcode"]=200;
 			send_data["success"]=0;
-			send_data["log"]='Wrong info';
+			send_data["message"]='Wrong info';
 			res.status(200).json(send_data);
 			//res.send("WRONG INFO");
 		}
@@ -137,6 +137,7 @@ router.post('/register', function(req, res, next) {
 	var password=req.body.password;
 	var email=req.body.email;
 	var nickname=req.body.nickname;
+	var is_club_member=req.body.is_club_member;
 
 	if(!username || !password || !email || !nickname){
         return res.status(400).json({"resultcode": 400, "message": "Parameters not Given"});
@@ -146,7 +147,29 @@ router.post('/register', function(req, res, next) {
     var salt=randomstring(16);
     var password_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
 
-	var usertable_post={username:username,nickname:nickname,email:email,is_club_member:0,is_admin:0};
+    if(is_club_member) {
+        if (!phone || !real_name) {
+            return res.status(400).json({"resultcode": 400, "message": "Parameters not Enough"});
+        }
+        var usertable_post = {
+            username: username,
+            nickname: nickname,
+            email: email,
+            is_club_member: is_club_member,
+            is_admin: 0,
+            real_name: real_name,
+            phone: phone
+        };
+    }
+	else {
+        var usertable_post = {
+            username: username,
+            nickname: nickname,
+            email: email,
+            is_club_member: is_club_member,
+            is_admin: 0
+        };
+    }
 	var logintable_post={username:username,salt:salt,password:password_hash};
 
 
@@ -156,7 +179,7 @@ router.post('/register', function(req, res, next) {
             return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
             // TODO : NEED SOME ERROR HANDLEING
         }
-    	if(rows){
+    	if(rows.length > 0){
             return res.status(400).json({"resultcode": 400, "message": "Exist username"});
         }
     }
