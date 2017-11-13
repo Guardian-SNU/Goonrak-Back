@@ -10,6 +10,8 @@ var mysql		= require('mysql');
 var db_config	= require('../config/db_config.js');
 var connection	= mysql.createConnection(db_config);
 
+var send_response = require('../general/response_manager.js').send_response;
+
 /* upload
  * - upload file 
  * 
@@ -23,7 +25,7 @@ router.post('/upload', multer({ dest: upload_directory }).single('upload_file'),
 
 	if(!(req.file && req.body.parent && req.body.type)) {
 		fs.unlinkSync(file.path);
-		return res.status(401).json({"resultcode": 401, "message": "Parameters not given."});
+		return send_response(res, 401, "Parameters not given");
 	}
 
 	var session			= req.session;
@@ -34,7 +36,7 @@ router.post('/upload', multer({ dest: upload_directory }).single('upload_file'),
 	// currently, only admin can upload file
 	if(!await auth.validate_user_level(session, session.username, auth.ADMIN_LEVEL)){
 		fs.unlinkSync(file.path);
-		return res.status(403).json({"resultcode": 403, "message": "Not admin"});	
+		return send_response(res, 401, "Not admin");
 	}
 
 
@@ -53,7 +55,7 @@ router.post('/upload', multer({ dest: upload_directory }).single('upload_file'),
 
 			if(rows.length == 0) {
 				fs.unlinkSync(file.path);
-				res.status(401).json({"resultcode": 401, "message": "Problem/Post not exists"});
+				return send_response(res, 401, "Problem/Post not exists");
 			}
 
 			var param = [[type, session.username, parent, file.originalname, file.path, file.size]];
@@ -63,13 +65,13 @@ router.post('/upload', multer({ dest: upload_directory }).single('upload_file'),
 					throw err;
 				}
 
-				return res.status(200).json({"resultcode": 200, "message": "Successfully uploaded"});
+				return send_response(res, 200, "Successfully uploaded");
 			});
 		});
 	}
 
 	else {
-		return res.status(401).json({"resultcode": 401, "message": "Invalid type"});
+		return send_response(res, 401, "Invalid type");
 	}
 
 });
@@ -100,13 +102,13 @@ router.get('/download/:type/:parent/:file', async function(req, res, next){
 
 			// file not exists
 			if(rows.length == 0){
-				return res.status(400).json({"resultcode": 400, "message": "File not exists"});
+				return send_response(res, 400, "File not exists");
 			}
 
 			fs.access(rows[0].path, function(err, fd){
 				// server does not have the file ( error )
 				if(err){
-					return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
+					return send_response(res, 500, "Internal server error");
 				}
 
 				var file = rows[0].path;
@@ -117,7 +119,7 @@ router.get('/download/:type/:parent/:file', async function(req, res, next){
 	}
 
 	else {
-		return res.status(400).json({"resultcode": 401, "message": "Invalid type"});
+		return send_response(res, 400, "Invalid type");
 	}
 });
 

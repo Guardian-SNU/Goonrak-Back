@@ -71,14 +71,11 @@ var validate_user_level = async function(session, username, level){
 	});
 }
 
-// response for when auth failed
-var auth_fail_response = { "resultcode": 403, "message": "user auth fail" };
 
 module.exports = {
 	validate_login		: validate_login,
 	validate_user		: validate_user,
 	validate_user_level : validate_user_level,
-	auth_fail_response	: JSON.stringify(auth_fail_response),
 
 	USER_LEVEL 			: USER_LEVEL,
 	MEMBER_LEVEL		: MEMBER_LEVEL,

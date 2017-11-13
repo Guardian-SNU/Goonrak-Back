@@ -43,7 +43,7 @@ var send_verification_email = function(username, address, res){
     // delete if there is previous token on same host
     connection.query("DELETE FROM EMAIL_TOKEN WHERE username=?", username, function(err, result){
         if (err){
-            res.status(500).json({"resultcode":500, "message": "Internal server error"});
+            res.status(500).json({"resultcode":500, "success": false, "message": "Internal server error", "data": []});
         }
     });
 
@@ -51,17 +51,17 @@ var send_verification_email = function(username, address, res){
     var values = {username:username, token:token, expires:(Date.now() + TOKEN_EXPIREATION_TIME).toString()};
     connection.query("INSERT INTO EMAIL_TOKEN SET ?", values, function(err, result){
         if(err){
-            res.status(500).json({"resultcode":500, "message": "Internal server error"});
+            res.status(500).json({"resultcode":500, "success": false, "message": "Internal server error", "data": []});
         }
     });
 
     // send_email
     smtpTransport.sendMail(mailOptions, function(err, mail_res){
         if(err){
-            res.status(500).json({"resultcode":500, "message":"Internal server error"});
+            res.status(500).json({"resultcode":500, "success": false, "message":"Internal server error", "data": []});
         }
 
-    	res.status(200).json({"resultcode":200, "message": "successfully sent email"});
+    	res.status(200).json({"resultcode":200, "success": true, "message": "successfully sent email", "data": []});
         smtpTransport.close();
     });
 };
