@@ -15,6 +15,7 @@ var auth = require('./routes/auth');
 var board = require('./routes/board');
 var admin = require('./routes/admin');
 var file = require('./routes/file');
+var comment = require('./routes/comment');
 
 var app = express();
 
@@ -38,6 +39,7 @@ app.use('/auth', auth);
 app.use('/board', board);
 app.use('/admin', admin);
 app.use('/file', file);
+app.use('/comment', comment);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
