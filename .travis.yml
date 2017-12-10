@@ -4,4 +4,5 @@ node_js:
 branches:
     only:
     - master
-
+script:
+    - npm start
