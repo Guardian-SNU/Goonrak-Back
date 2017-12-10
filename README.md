@@ -1,3 +1,5 @@
+![travis-ci](https://travis-ci.org/Guardian-SNU/Goonrak-Back.svg?branch=master)
+
 # Goonrak Backend
 
 Members : 김세희, 남예현, 최경재
