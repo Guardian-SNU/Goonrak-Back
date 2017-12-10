@@ -2,6 +2,9 @@
   "name": "goonrak",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+  	"npm": "5.4.1"
+  }
   "scripts": {
     "start": "node ./bin/www",
     "test": "node ./bin/www"
