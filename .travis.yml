@@ -4,5 +4,10 @@ node_js:
 branches:
     only:
     - master
+    - ci
+
+before_install:
+    - cd goonrak
+
 script:
     - npm start
