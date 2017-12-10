@@ -7,4 +7,5 @@ branches:
     - ci
 
 before_install:
+    - npm install -g npm@'5.4.1'
     - cd goonrak
