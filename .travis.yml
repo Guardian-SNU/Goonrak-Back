@@ -6,6 +6,4 @@ branches:
     - master
     - ci
 
-before_install:
-    - cd goonrak
-
+script: cd goonrak && npm install && npm test
