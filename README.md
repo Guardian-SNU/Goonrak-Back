@@ -23,24 +23,8 @@ Port Allocated : 9999, 9998, 9997 ( Base port 9999 )
 
 > please copy 'config' folder individually ( not uploaded on github )
 
-## Response Format
+> __LAST UPDATE : 12/11__
 
-		{
-			"resultcode": 200 ( for successful requests ), 40x ( for abnormal requests ),
-			"message": "error description message",
-			...
-		}
+## APIs
 
-## APIs (updating)
-
-	- /inout
-		- /register
-		- /login
-		- /logout
-	
-	- /board
-		- /get_post
-		- /write_post
-		- /edit_post
-		- /delete_post
-	
+See `Issue`	
