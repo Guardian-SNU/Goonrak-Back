@@ -18,7 +18,7 @@ var board_auth	= require('../general/board_auth.js');
 router.post('/get_comments', async function(req, res, next){	
 	var param = req.body.post_id;
 	if(!param) {
-		return sent_response(res, 400, "Parameters not given");
+		return send_response(res, 400, "Parameters not given");
 	}
 
 	var session	= req.session;
@@ -58,15 +58,15 @@ router.post('/get_comments', async function(req, res, next){
  * - post id, username, comment_data, ... ( check database schema )
  */
 router.post('/write_comment', async function(req, res, next){
-	var param = req.body.post_id & (req.body.content != null);
+	var param = req.body.post_id && req.body.content && req.body.username;
 	if(!param) {
 		return send_response(res, 400, "Parameters not given");
 	}
 
-	var session	= req.session;
-	var username	= req.body.username;
-	var post_id	= req.body.post_id;
-	var content	= req.body.content;
+	var session     = req.session;
+	var username    = req.body.username;
+	var post_id     = req.body.post_id;
+	var content     = req.body.content;
 	
 	var board	= await get_board_from_post(post_id);
 	if(board == -1) {
@@ -129,9 +129,13 @@ router.post('/edit_comment', async function(req, res, next){
 				return send_response(res, 500, "Internal server error");
 			}
 
-			if(rows.length < 0) {
+			if(rows.length == 0) {
 				return send_response(res, 400, "No such comment");
 			}
+
+            if(rows[0].post_id != post_id){
+                return send_response(res, 400, "Wrong post id");
+            }
 
 			if(rows[0].username != username) {
 				return send_response(res, 401, "User auth fail");
@@ -192,9 +196,13 @@ router.post('/delete_comment', async function(req, res, next){
 				return send_response(res, 500, "Internal server error");
 			}
 
-			if(rows.length < 0) {
+			if(rows.length == 0) {
 				return send_response(res, 400, "No such comment");
 			}
+
+            if(rows[0].post_id != post_id){
+                return send_response(res, 400, "Wrong post id");
+            }
 
 			if(rows[0].username != username) {
 				return send_response(res, 401, "User auth fail");
