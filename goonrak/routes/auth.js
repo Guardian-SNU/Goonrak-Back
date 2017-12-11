@@ -7,7 +7,7 @@ var db_config = require('../config/db_config.js');
 var connection = mysql.createConnection(db_config);
 
 var email_auth = require('../general/email_auth.js');
-var send_response = require('../general/response_manager.js').send_response
+var send_response = require('../general/response_manager.js').send_response;
 
 /* login
  * - get username, password from user, authenticate it, and give sessions to user
@@ -98,7 +98,6 @@ router.post('/logout', function(req, res, next) {
  */
 router.post('/register', function(req, res, next) {
 
-	// TODO : exception handling
 	// TODO : add captcha?
     var randomstring = function(length){
         return crypto.randomBytes(Math.ceil(length/2))
@@ -115,7 +114,6 @@ router.post('/register', function(req, res, next) {
 	if(!username || !password || !email || !nickname){
 	    return send_response(res, 400, "Parameters not given");
     }
-
 
     var salt=randomstring(16);
     var password_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
@@ -162,7 +160,7 @@ router.post('/register', function(req, res, next) {
 
 			connection.query('INSERT INTO LOGIN SET ?', logintable_post, function(err, result){
 				if(err){
-					consolg.log(err);
+					console.log(err);
                     return send_response(res, 400, "Internal server error");
 				}
 

@@ -7,18 +7,14 @@ var db_config = require('../config/db_config.js');
 var email_config = require('../config/email_config.js');
 var connection = mysql.createConnection(db_config);
 
+var send_response = require('./response_manager.js').send_response;
+
 // interval for token expiration ( 10 HOUR )
 var TOKEN_EXPIREATION_TIME = 36000000;
 
 // TODO: add route, if SSL added, change http to https
 var VERIFICATION_ADDRESS = 'http://goonrak.snucse.org:9999/auth/activate?'
 
-/* send email
- *
- * host : user IP
- * address : user email address
- * res : response object
- */
 var send_verification_email = function(username, address, res){
 
     // token for email_verification
@@ -49,7 +45,7 @@ var send_verification_email = function(username, address, res){
     // delete if there is previous token on same host
     connection.query("DELETE FROM EMAIL_TOKEN WHERE username=?", username, function(err, result){
         if (err){
-            res.status(500).json({"resultcode":500, "message": "Internal server error"});
+			return send_response(res, 500, "Internal server error");
         }
     });
 
@@ -57,18 +53,18 @@ var send_verification_email = function(username, address, res){
     var values = {username:username, token:token, expires:(Date.now() + TOKEN_EXPIREATION_TIME).toString()};
     connection.query("INSERT INTO EMAIL_TOKEN SET ?", values, function(err, result){
         if(err){
-            res.status(500).json({"resultcode":500, "message": "Internal server error"});
+			return send_response(res, 500, "Internal server error");
         }
     });
 
     // send_email
     smtpTransport.sendMail(mailOptions, function(err, mail_res){
         if(err){
-            res.status(500).json({"resultcode":500, "message":"Internal server error"});
+			return send_response(res, 500, "Internal server error");
         }
-
-    	res.status(200).json({"resultcode":200, "message": "successfully sent email"});
+	
         smtpTransport.close();
+    	return send_response(res, 200, "Successfully send mail");
     });
 };
 
@@ -89,14 +85,19 @@ var verify_token = function(username, token, res){
     // compare token
     connection.query("SELECT username FROM EMAIL_TOKEN WHERE token=?", token, function(err, rows, fields){
         if(err) {
-            res.status(500).json({"resultcode": 500, "message": "verify failed"});
+			return send_response(res, 500, "Internal server error");
         }
+
+		if(rows.length==0) {
+			return send_response(res, 401, "Not valid token");
+		}
+
         connection.query("UPDATE USER SET email_auth=true WHERE username=?",username,function(err, rows, field) {
             if (err) {
-                console.log(err)
-                return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
+                console.log(err);
+				return send_response(res, 500, "Internal server error");
             }
-            res.status(200).json({"resultcode": 200, "message": "successfully verified"});
+			return send_response(res, 200, "Successfully verified");
         });
     });
 };

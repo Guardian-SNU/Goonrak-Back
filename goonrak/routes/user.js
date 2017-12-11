@@ -1,31 +1,30 @@
 var express = require('express');
 var router = express.Router();
 
-var auth = require('../general/auth.js');
+var auth = require('../general/user_auth.js');
 var mysql = require('mysql');
 var db_config = require('../config/db_config.js');
 var connection = mysql.createConnection(db_config);
 
-/* get_user_info
+/* get_info
  * - validate user, and return user info
- * 
- * POST form data
- * - user_id ( user that you want to see )
- * - username ( for validation )
+ *
+ * GET parameter
+ * - username
  */
-router.post('/get_user_info', function(req, res, next){	
+router.get('/get_info', function(req, res, next){	
 	// TODO : implement
 });
 
 
-/* edit_user_info
+/* edit_info
  * - validate user, fix user data in db
  *
  * POST form data
- * - user info ( check database schema )
+ * - nickname, password, phone
  * - username
  */
-router.post('/edit_user_info', function(req, res, next){
+router.post('/edit_info', function(req, res, next){
 	// TODO : implement
 });
 
