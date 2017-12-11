@@ -109,7 +109,7 @@ router.post('/register', function(req, res, next) {
 	var password=req.body.password;
 	var email=req.body.email;
 	var nickname=req.body.nickname;
-	var is_club_member=req.body.is_club_member;
+	var is_club_member=req.body.is_club_member==1;
 
 	if(!username || !password || !email || !nickname){
 	    return send_response(res, 400, "Parameters not given");
@@ -118,7 +118,11 @@ router.post('/register', function(req, res, next) {
     var salt=randomstring(16);
     var password_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
 
-    if(is_club_member) {
+    if(is_club_member==true) {
+        
+        var phone = req.body.phone;
+        var real_name = req.body.real_name;
+
         if (!phone || !real_name) {
             return send_response(res, 400, "Parameters not enough");
         }
@@ -126,9 +130,9 @@ router.post('/register', function(req, res, next) {
             username: username,
             nickname: nickname,
             email: email,
-            is_club_member: is_club_member,
+            is_club_member: 0,
             is_admin: 0,
-            real_name: real_name,
+            realname: real_name,
             phone: phone
         };
     }
@@ -137,7 +141,7 @@ router.post('/register', function(req, res, next) {
             username: username,
             nickname: nickname,
             email: email,
-            is_club_member: is_club_member,
+            is_club_member: 0,
             is_admin: 0
         };
     }
