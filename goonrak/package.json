@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "eslint": "^4.13.0",
-    "eslint-config-google": "^0.9.1"
+    "eslint-config-google": "^0.9.1",
+    "eslint-plugin-eslint-snake-case": "0.0.6"
   }
 }

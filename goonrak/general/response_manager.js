@@ -1,18 +1,18 @@
-var send_response = function(response, status, message, data){
-	if(data == null){
-		data = [];
-	}
+const send_response = function(response, status, message, data) {
+    if (data == null) {
+        data = [];
+    }
 
-	var success = (status == 200);
+    let success = (status == 200);
 
-	return response.status(status).json({
-		"resultcode": status,
-		"success": success,
-		"message": message,
-		"data": data
-	});
-}
+    return response.status(status).json({
+        'resultcode': status,
+        'success': success,
+        'message': message,
+        'data': data,
+    });
+};
 
 module.exports = {
-	send_response : send_response,
-}
+    send_response: send_response,
+};

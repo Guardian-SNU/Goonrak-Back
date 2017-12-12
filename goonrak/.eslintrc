@@ -6,5 +6,12 @@
     "parserOptions": {
         "ecmaVersion": 8
     },
+    "plugins": [
+        "eslint-snake-case"
+    ],
+    "rules": {
+        "camelcase": 0,
+        "max-len": 0
+    },
 	"extends": "eslint-config-google"
 }
