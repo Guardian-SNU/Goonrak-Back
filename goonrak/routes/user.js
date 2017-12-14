@@ -14,6 +14,7 @@ var connection = mysql.createConnection(db_config);
  */
 router.get('/get_info', function(req, res, next){	
 	// TODO : implement
+
 });
 
 
