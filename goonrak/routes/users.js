@@ -1,105 +1,90 @@
-var express = require('express');
-var session = require('express-session');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-var auth = require('../general/user_auth.js');
-var mysql = require('mysql');
-var db_config = require('../config/db_config.js');
-var email = require('../general/email_auth.js');
+// const auth = require('../general/user_auth.js');
+const crypto = require('crypto');
+const mysql = require('mysql');
+const db_config = require('../config/db_config.js');
+const connection = mysql.createConnection(db_config);
+const send_response = require('../general/response_manager.js').send_response;
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-	// test2
-	email.send_verification_email('1', 'highnoo70@gmail.com', res);
-	//email.verify_token('1', '519', res);
-});
+router.get('/get_info', function(req, res, next) {
+    const sess = req.session;
+    let username = sess.username;
 
-
-router.post('/get_info', function(req, res, next){
-    // TODO : implement
-	var sess=req.session;
-	var username=sess.username;
-    connection.query('SELECT * FROM USER WHERE username=?', username, function(err, rows, field){
-
-        if(err){
-            console.log(err)
-            return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-            // TODO : NEED SOME ERROR HANDLEING
+    connection.query('SELECT username, nickname, register_time, email, is_club_member, phone, realname FROM USER WHERE username=?', username, function(err, rows, field) {
+        if (err) {
+            console.log(err);
+            return send_response(res, 500, 'Internal server error');
         }
 
         // check username uniqueness
-        if(rows && rows.length == 1){
-            var is_club_member = rows[0].is_club_member;
-            var email = rows[0].email;
-            send_data["resultcode"]=200;
-            send_data["message"]="Get info success";
-
-            // info : email, is_clubmember
-            send_data["info"]={username:username,email:email,is_club_member:is_club_member};
-            res.status(200).json(send_data);
-            // correct password given
-
-        }
-
-        // no matching username
-        else{
-            // TODO : send JSON
-            send_data["resultcode"]=200;
-            send_data["success"]=0;
-            send_data["message"]='Wrong info';
-            res.status(200).json(send_data);
-            //res.send("WRONG INFO");
+        if (rows && rows.length == 1) {
+            return send_response(res, 200, '', rows[0]);
+        } else { // no matching username
+            return send_response(res, 401, 'Wrong info');
         }
     });
 });
 
-router.post('/edit_info', function(req, res, next){
-    // TODO : implement
-    var sess=req.session;
-    var username=sess.username;
-    connection.query('SELECT * FROM USER WHERE username=?', username, function(err, rows, field){
+router.post('/edit_info', function(req, res, next) {
+    const sess = req.session;
+    let username = sess.username;
+    let password = req.body.password;
+    let nickname = req.body.nickname;
+    let phone = req.body.phone;
 
-        if(err){
-            console.log(err)
-            return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-            // TODO : NEED SOME ERROR HANDLEING
+    if (!nickname) {
+        return send_response(res, 400, 'Parameters not given');
+    }
+
+    connection.query('SELECT * FROM USER WHERE username=?', username, function(err, rows, field) {
+        if (err) {
+            console.log(err);
+            return send_response(res, 500, 'Internal server error');
         }
 
         // check username uniqueness
-        if(rows && rows.length == 1){
-            //var is_club_member = rows[0].is_club_member;
-            var email = req.body.email;
-			var password = req.body.password;
-            var salt = rows[0].salt;
-            var update_pw_hash = crypto.createHash('sha256').update(salt + password).digest('hex');
+        if (rows && rows.length == 1) {
+            // update password
+            if (!(password == null) && !(password.length == 0)) {
+                connection.query('SELECT salt FROM LOGIN WHERE username=?', [username], function(err, rows, field) {
+                    if (err) {
+                        return send_response(res, 500, 'Internal server error');
+                    }
 
-            // update only : password (cant username, email, is_club_member)
-			connection.query('UPDATE USER set password=? where username=?',[update_pw_hash,username],function(err,rows,field){
-                if(err){
-                    console.log(err)
-                    return res.status(500).json({"resultcode": 500, "message": "Internal server error"});
-                    // TODO : NEED SOME ERROR HANDLEING
-                }
-			})
+                    if (rows && rows.length == 1) {
+                        let salt = rows[0].salt;
+                        let updated_pw = crypto.createHash('sha256').update(salt+password).digest('hex');
 
+                        connection.query('UPDATE LOGIN SET password=? WHERE username=?', [updated_pw, username], function(err, result) {
+                            if (err) {
+                                return send_response(res, 500, 'Internal server error');
+                            }
 
+                            connection.query('UPDATE USER SET nickname=?, phone=? WHERE username=?', [nickname, phone, username], function(err, result) {
+                                if (err) {
+                                    return send_response(res, 500, 'Internal server error');
+                                }
 
-            send_data["resultcode"]=200;
-            send_data["message"]="Update info success";
+                                return send_response(res, 200, '');
+                            });
+                        });
+                    } else {
+                        return send_response(res, 401, 'Wrong info');
+                    }
+                });
+            } else {
+                connection.query('UPDATE USER SET nickname=?, phone=? WHERE username=?', [nickname, phone, username], function(err, result) {
+                    if (err) {
+                        return send_response(res, 500, 'Internal server error');
+                    }
 
-            res.status(200).json(send_data);
-            // correct password given
-
-        }
-
-        // no matching username
-        else{
-            // TODO : send JSON
-            send_data["resultcode"]=200;
-            send_data["success"]=0;
-            send_data["message"]='Wrong info';
-            res.status(200).json(send_data);
-            //res.send("WRONG INFO");
+                    return send_response(res, 200, '');
+                });
+            }
+        } else { // no matching username
+            return send_response(res, 401, 'Wrong info');
         }
     });
 });
